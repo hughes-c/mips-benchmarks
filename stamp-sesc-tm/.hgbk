@@ -1,0 +1,15 @@
+Doxyfile
+kmeans/inputs/random-n65536-d32-c16.txt
+stamp_0_9_6.kdevelop
+stamp_0_9_6.kdevelop.filelist
+.*~
+.*o
+.*orig
+.*kdevses
+tags
+bayes/bayes.mips.tm
+kmeans/kmeans.mips.tm
+kmeans/kmeans.mips.tm.S
+labyrinth/labyrinth.mips.tm
+lib/Makefile.back
+lib/test_rbtree

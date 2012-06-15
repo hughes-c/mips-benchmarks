@@ -1,0 +1,38 @@
+# ==============================================================================
+#
+# Defines.common.mk
+#
+# ==============================================================================
+
+
+PROG := bayes.mips.tm
+
+SRCS += \
+	adtree.c \
+	bayes.c \
+	data.c \
+	learner.c \
+	net.c \
+	sort.c \
+	$(LIB)/bitmap.c \
+	$(LIB)/list.c \
+	$(LIB)/mt19937ar.c \
+	$(LIB)/queue.c \
+	$(LIB)/random.c \
+	$(LIB)/thread.c \
+	$(LIB)/memory.c \
+	$(LIB)/vector.c \
+#
+OBJS := ${SRCS:.c=.o}
+
+CFLAGS += -DLIST_NO_DUPLICATES
+CFLAGS += -DLEARNER_TRY_REMOVE
+CFLAGS += -DLEARNER_TRY_REVERSE
+#CFLAGS += -DLEARNER_TRY_STEAL
+
+
+# ==============================================================================
+#
+# End of Defines.common.mk
+#
+# ==============================================================================

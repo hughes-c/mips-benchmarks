@@ -1,0 +1,36 @@
+# ==============================================================================
+#
+# Makefile.seq
+#
+# ==============================================================================
+
+
+# ==============================================================================
+# Rules
+# ==============================================================================
+
+CPPFLAGS := $(CFLAGS)
+LDFLAGS  += -L$(HTM) -static -Wl,--script=/home/jpoe/sescutils/install/mipseb-linux/lib/ldscripts/mint.x
+LDFLAGS += /home/jpoe/default/obj/mipseb_obj/sesc_locks.o  /home/jpoe/default/obj/mipseb_obj/sesc_thread.o
+LDFLAGS += /home/jpoe/default/obj/mipseb_obj/sesc_events.o  /home/jpoe/default/obj/mipseb_obj/sesc_chud.o
+#LIBS     += -ltl2
+
+.PHONY: default
+default: $(PROG)
+
+.PHONY: clean
+clean:
+	$(RM) $(OBJS) $(PROG) $(OUTPUT)
+
+$(PROG): $(OBJS)
+	$(LD) $(LDFLAGS) $^ $(LIBS) -o $(PROG)
+
+include ../common/Makefile.common
+
+
+# ==============================================================================
+#
+# Makefile.seq
+#
+# ==============================================================================
+

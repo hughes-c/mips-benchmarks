@@ -1,0 +1,26 @@
+m4 -Ulen -Uindex ../../../../sesc/src/libapp/c.m4.sesc model.H > model.h
+m4 -Ulen -Uindex ../../../../sesc/src/libapp/c.m4.sesc parallel.H > parallel.h
+m4 -Ulen -Uindex ../../../../sesc/src/libapp/c.m4.sesc patch.H > patch.h
+m4 -Ulen -Uindex ../../../../sesc/src/libapp/c.m4.sesc task.H > task.h
+m4 -Ulen -Uindex ../../../../sesc/src/libapp/c.m4.sesc radiosity.H > radiosity.h
+m4 -Ulen -Uindex ../../../../sesc/src/libapp/c.m4.sesc rad_main.C > rad_main.c
+mipseb-linux-gcc-3.4.4 -c -I./glibdumb -I./glibps  -O2 -mips2 -mabi=32 -Wa,-non_shared -mno-abicalls -I../../../../sesc/src/libapp/ rad_main.c
+m4 -Ulen -Uindex ../../../../sesc/src/libapp/c.m4.sesc patchman.C > patchman.c
+mipseb-linux-gcc-3.4.4 -c -I./glibdumb -I./glibps  -O2 -mips2 -mabi=32 -Wa,-non_shared -mno-abicalls -I../../../../sesc/src/libapp/ patchman.c
+m4 -Ulen -Uindex ../../../../sesc/src/libapp/c.m4.sesc elemman.C > elemman.c
+mipseb-linux-gcc-3.4.4 -c -I./glibdumb -I./glibps  -O2 -mips2 -mabi=32 -Wa,-non_shared -mno-abicalls -I../../../../sesc/src/libapp/ elemman.c
+m4 -Ulen -Uindex ../../../../sesc/src/libapp/c.m4.sesc taskman.C > taskman.c
+mipseb-linux-gcc-3.4.4 -c -I./glibdumb -I./glibps  -O2 -mips2 -mabi=32 -Wa,-non_shared -mno-abicalls -I../../../../sesc/src/libapp/ taskman.c
+m4 -Ulen -Uindex ../../../../sesc/src/libapp/c.m4.sesc modelman.C > modelman.c
+mipseb-linux-gcc-3.4.4 -c -I./glibdumb -I./glibps  -O2 -mips2 -mabi=32 -Wa,-non_shared -mno-abicalls -I../../../../sesc/src/libapp/ modelman.c
+m4 -Ulen -Uindex ../../../../sesc/src/libapp/c.m4.sesc smallobj.C > smallobj.c
+mipseb-linux-gcc-3.4.4 -c -I./glibdumb -I./glibps  -O2 -mips2 -mabi=32 -Wa,-non_shared -mno-abicalls -I../../../../sesc/src/libapp/ smallobj.c
+m4 -Ulen -Uindex ../../../../sesc/src/libapp/c.m4.sesc display.C > display.c
+mipseb-linux-gcc-3.4.4 -c -I./glibdumb -I./glibps  -O2 -mips2 -mabi=32 -Wa,-non_shared -mno-abicalls -I../../../../sesc/src/libapp/ display.c
+m4 -Ulen -Uindex ../../../../sesc/src/libapp/c.m4.sesc visible.C > visible.c
+mipseb-linux-gcc-3.4.4 -c -I./glibdumb -I./glibps  -O2 -mips2 -mabi=32 -Wa,-non_shared -mno-abicalls -I../../../../sesc/src/libapp/ visible.c
+m4 -Ulen -Uindex ../../../../sesc/src/libapp/c.m4.sesc rad_tools.C > rad_tools.c
+mipseb-linux-gcc-3.4.4 -c -I./glibdumb -I./glibps  -O2 -mips2 -mabi=32 -Wa,-non_shared -mno-abicalls -I../../../../sesc/src/libapp/ rad_tools.c
+m4 -Ulen -Uindex ../../../../sesc/src/libapp/c.m4.sesc room_model.C > room_model.c
+mipseb-linux-gcc-3.4.4 -c -I./glibdumb -I./glibps  -O2 -mips2 -mabi=32 -Wa,-non_shared -mno-abicalls -I../../../../sesc/src/libapp/ room_model.c
+mipseb-linux-gcc-3.4.4 -I./glibdumb -I./glibps  -O2 -mips2 -mabi=32 -Wa,-non_shared -mno-abicalls -I../../../../sesc/src/libapp/ -O2 -lm -static -Wl,--script=../../../../sescutils/install/mipseb-linux/lib/ldscripts/mint.x /home/jpoe/default/obj/mipseb_obj/libapp.a /home/jpoe/sescutils/build-mipseb-linux/obj/gcc-build/mipseb-linux/libstdc++-v3/libmath/.libs/libmath.a rad_main.o patchman.o elemman.o taskman.o modelman.o smallobj.o display.o visible.o rad_tools.o room_model.o  ./glibdumb/glib.a glibps/glibps.a -o RADIOSITY
