@@ -1,0 +1,316 @@
+#!/bin/bash
+
+OUTHINT="$1"
+PROCS="$2"
+BENCHMARKS="100"
+MAXOPTIONS="30"
+
+# Transactional Settings
+localTransVar[1]="SESC_TransactionalMemory_nackStallCycles=1"
+localTransVar[2]="SESC_TransactionalMemory_abortBaseStallCycles=50"
+localTransVar[3]="SESC_TransactionalMemory_abortVarStallCycles=8"
+localTransVar[4]="SESC_TransactionalMemory_abortExpBackoff=0"
+localTransVar[5]="SESC_TransactionalMemory_abortLinBackoff=25"
+localTransVar[6]="SESC_TransactionalMemory_commitBaseStallCycles=10"
+localTransVar[7]="SESC_TransactionalMemory_commitVarStallCycles=0"
+
+localTransVar[8]="SESC_TransactionalMemory_conflictDetect=1"
+localTransVar[9]="SESC_TransactionalMemory_versioning=1"
+
+# Global Transaction Framework Settings
+source "settings.trans.inc"
+
+# SESC Settings
+source "settings.sesc.inc"
+
+#HPC Cluster Settings
+
+MEM="1800mb"
+EMAIL="jpoe@ufl.edu"
+WALLTIME="48:00:00"
+#STACKSIZE="65536""
+STACKSIZE="131072"
+OUTSIZE="1gb"
+
+#PATHS AND NAMES
+SIM="sesc.trans.new"
+SIMDIR="/home/jpoe/tm/compiled_tm/"
+BENCHDIR="/home/jpoe/tm/benchmarks/tm_splash/"
+CONFSDIR="/home/jpoe/tm/confs/"
+CONFSNAM="sesc.conf"
+OUTDIR="$UFHPC_SCRATCH/$USER/${SIM}-${OUTHINT}-$$/"
+
+mkdir $OUTDIR
+mkdir $OUTDIR/err
+mkdir $OUTDIR/out
+mkdir $OUTDIR/debug
+mkdir $OUTDIR/results
+mkdir $OUTDIR/csv
+mkdir $OUTDIR/tmresults
+mkdir $OUTDIR/sescresults
+
+## Print Out Configuration File
+
+for e in `seq 1 $MAXOPTIONS`
+do
+  if [ "${globalTransVar[e]}" != "" ]
+  then
+    echo ${globalTransVar[e]} | sed "s/^SESC_//" >> $OUTDIR/transConfig
+  fi
+done
+
+for e in `seq 1 $MAXOPTIONS`
+do
+  if [ "${localTransVar[e]}" != "" ]
+  then
+    echo ${localTransVar[e]} | sed "s/^SESC_//" >> $OUTDIR/transConfig
+  fi
+done
+
+for e in `seq 2 $MAXOPTIONS`
+do
+  if [ "${sescVar[e]}" != "" ]
+  then
+    echo ${sescVar[e]} | sed "s/^SESC_//" >> $OUTDIR/transConfig
+  fi
+done
+
+for p in ${PROCS}
+do
+	PNUM=$p
+
+	sescVar[1]="SESC_procsPerNode=${PNUM}"
+
+### BARNES
+
+   benchNam[1]="TM-barnes"
+   benchSht[1]="$lineCount-TM-b"
+   benchCmd[1]="${BENCHDIR}barnes.mips.tm < ${BENCHDIR}barnes.input.${PNUM}p"
+   
+   benchNam[51]="LK-barnes"
+   benchSht[51]="$lineCount-LK-b"
+   benchCmd[51]="${BENCHDIR}barnes.mips < ${BENCHDIR}barnes.input.${PNUM}p"
+   
+### CHOLESKY
+   
+   benchNam[2]="TM-cholesky"
+   benchSht[2]="$lineCount-TM-c"
+   benchCmd[2]="${BENCHDIR}cholesky.mips.tm -p${PNUM} -B32 -C16384 -t -s ${BENCHDIR}cholesky.input.tk15.O"
+   
+   benchNam[52]="LK-cholesky"
+   benchSht[52]="$lineCount-LK-c"
+   benchCmd[52]="${BENCHDIR}cholesky.mips -p${PNUM} -B32 -C16384 -t -s ${BENCHDIR}cholesky.input.tk15.O"
+   
+### FMM
+   
+   benchNam[3]="TM-fmm"
+   benchSht[3]="$lineCount-TM-f"
+   benchCmd[3]="${BENCHDIR}fmm.mips.tm < ${BENCHDIR}fmm.input.${PNUM}p.16348"
+   
+   benchNam[53]="LK-fmm"
+   benchSht[53]="$lineCount-LK-f"
+   benchCmd[53]="${BENCHDIR}fmm.mips < ${BENCHDIR}fmm.input.${PNUM}p.16348"
+   
+### RADIOSITY (IN-OP)
+   
+   benchNam[4]="TM-radiosity"
+   benchSht[4]="$lineCount-TM-r"
+   benchCmd[4]="${BENCHDIR}radiosity.mips.tm -p ${PNUM} -batch"
+   
+   benchNam[54]="LK-radiosity"
+   benchSht[54]="$lineCount-LK-r"
+   benchCmd[54]="${BENCHDIR}radiosity.mips -p ${PNUM} -batch"
+   
+### RAYTRACE
+   
+   benchNam[5]="TM-raytrace"
+   benchSht[5]="$lineCount-TM-rt"
+   benchCmd[5]="${BENCHDIR}raytrace.mips.tm -p${PNUM} ${BENCHDIR}raytrace.input.teapot.env"
+   
+   benchNam[55]="LK-raytrace"
+   benchSht[55]="$lineCount-LK-rt"
+   benchCmd[55]="${BENCHDIR}raytrace.mips -p${PNUM} ${BENCHDIR}raytrace.input.teapot.env"
+   
+### WATER-NSQUARED
+   
+   benchNam[6]="TM-water-nsquared"
+   benchSht[6]="$lineCount-TM-wn"
+   benchCmd[6]="${BENCHDIR}water-nsquared.mips.tm < ${BENCHDIR}water-nsquared.input.${PNUM}p"
+   
+   benchNam[56]="LK-water-nsquared"
+   benchSht[56]="$lineCount-LK-wn"
+   benchCmd[56]="${BENCHDIR}water-nsquared.mips < ${BENCHDIR}water-nsquared.input.${PNUM}p"
+   
+### WATER-SPATIAL   
+
+   benchNam[7]="TM-water-spatial"
+   benchSht[7]="$lineCount-TM-ws"
+   benchCmd[7]="${BENCHDIR}water-spatial.mips.tm < ${BENCHDIR}water-spatial.input.${PNUM}p"
+   
+   benchNam[57]="LK-water-spatial"
+   benchSht[57]="$lineCount-LK-ws"
+   benchCmd[57]="${BENCHDIR}water-spatial.mips < ${BENCHDIR}water-spatial.input.${PNUM}p"
+   
+### OCEAN-CONTIGUOUS (IN-OP)
+   
+   benchNam[8]="TM-ocean-con"
+   benchSht[8]="$lineCount-TM-oc"
+   benchCmd[8]="${BENCHDIR}ocean-con.mips.tm -s -o -p${PNUM} -n258"
+   
+   benchNam[58]="LK-ocean-con"
+   benchSht[58]="$lineCount-LK-oc"
+   benchCmd[58]="${BENCHDIR}ocean-con.mips -s -o -p${PNUM} -n258"
+   
+### OCEAN-NONCONTIGUOUS (IN-OP)
+   
+   benchNam[9]="TM-ocean-non"
+   benchSht[9]="$lineCount-TM-on"
+   benchCmd[9]="${BENCHDIR}ocean-non.mips.tm -s -o -p${PNUM} -n34"
+   
+   benchNam[59]="LK-ocean-non"
+   benchSht[59]="$lineCount-LK-on"
+   benchCmd[59]="${BENCHDIR}ocean-non.mips -s -o -p${PNUM} -n34"
+   
+### GENOME
+   
+   benchNam[10]="TM-genome"
+   benchSht[10]="$lineCount-TM-gm"
+   benchCmd[10]="${BENCHDIR}genome.mips.tm -g256 -s16 -n16384 -t${PNUM}"
+   
+   benchNam[60]="LK-genome"
+   benchSht[60]="$lineCount-LK-gm"
+   benchCmd[60]="${BENCHDIR}genome.mips -g256 -s16 -n16384 -t${PNUM}"
+   
+### KMEANS
+   
+   benchNam[11]="TM-kmeans"
+   benchSht[11]="$lineCount-TM-km"
+   benchCmd[11]="${BENCHDIR}kmeans.mips.tm -m40 -n40 -t0.05 -p${PNUM} -i ${BENCHDIR}random1000_12"
+   
+   benchNam[61]="LK-kmeans"
+   benchSht[61]="$lineCount-LK-km"
+   benchCmd[61]="${BENCHDIR}kmeans.mips -m40 -n40 -t0.05 -p${PNUM} -i ${BENCHDIR}random1000_12"
+   
+### VACATION
+   
+   benchNam[12]="TM-vacation"
+   benchSht[12]="$lineCount-TM-v"
+   benchCmd[12]="${BENCHDIR}vacation.mips.tm -c${PNUM} -n4 -q90 -u80 -r65536 -t4096"
+   
+   benchNam[62]="LK-vacation"
+   benchSht[62]="$lineCount-LK-v"
+   benchCmd[62]="${BENCHDIR}vacation.mips -c${PNUM} -n4 -q90 -u80 -r65536 -t4096"
+   
+### LABYRINTH
+   
+   benchNam[13]="TM-labyrinth"
+   benchSht[13]="$lineCount-TM-lb"
+   benchCmd[13]="${BENCHDIR}labyrinth.mips.tm -t${PNUM} -i ${BENCHDIR}random-x48-y48-z3-n48.txt"
+   
+   benchNam[63]="LK-labyrinth"
+   benchSht[63]="$lineCount-LK-lb"
+   benchCmd[63]="${BENCHDIR}labyrinth.mips -t${PNUM} -i ${BENCHDIR}random-x48-y48-z3-n48.txt"
+   
+### BAYES
+   
+   benchNam[14]="TM-bayes"
+   benchSht[14]="$lineCount-TM-by"
+   benchCmd[14]="${BENCHDIR}bayes.mips.tm -t${PNUM} -v8 -r384 -n2 -p20 -s1"
+   
+   benchNam[64]="LK-bayes"
+   benchSht[64]="LK-by"
+   benchCmd[64]="${BENCHDIR}bayes.mips -t${PNUM} -v8 -r384 -n2 -p20 -s1"
+   
+### FACESIM (IN-OP)
+
+#    benchNam[15]="TM-facesim"
+#    benchSht[15]="TM-fs"
+#    benchCmd[15]="${BENCHDIR}facesim.mips.tm -timing -threads ${PNUM}"
+# 
+#    benchNam[65]="LK-facesim"
+#    benchSht[65]="LK-fs"
+#    benchCmd[65]="${BENCHDIR}facesim.mips -timing -threads ${PNUM}"
+
+### X264 (IN-OP)
+
+#    benchNam[16]="TM-x264"
+#    benchSht[16]="TM-x2"
+#    benchCmd[16]="${BENCHDIR}x264.mips.tm --quiet --qp 20 --partitions b8x8,i4x4 --bframes 3 --ref 5 --direct auto --b-pyramid --b-rdo --weightb --bime --mixed-refs --no-fast-pskip --me umh --subme 7 --analyse b8x8,i4x4 --threads 8 -o ${OUTDIR}out/eledream.264-${PNUM} ${BENCHDIR}eledream_640x360_8.y4m"
+# 
+#    benchNam[66]="LK-x264"
+#    benchSht[66]="LK-x2"
+#    benchCmd[66]="${BENCHDIR}x264.mips --quiet --qp 20 --partitions b8x8,i4x4 --bframes 3 --ref 5 --direct auto --b-pyramid --b-rdo --weightb --bime --mixed-refs --no-fast-pskip --me umh --subme 7 --analyse b8x8,i4x4 --threads 8 -o ${OUTDIR}out/eledream.264-${PNUM} ${BENCHDIR}eledream_640x360_8.y4m"
+
+### STREAMCLUSTER
+   
+   benchNam[17]="TM-streamcluster"
+   benchSht[17]="TM-sc"
+   benchCmd[17]="${BENCHDIR}streamcluster.mips.tm 10 20 32 4096 4096 1000 none ${OUTDIR}out/outputSCT.txt ${PNUM}"
+
+   benchNam[67]="LK-streamcluster"
+   benchSht[67]="LK-sc"
+   benchCmd[67]="${BENCHDIR}streamcluster.mips 10 20 32 4096 4096 1000 none ${OUTDIR}out/outputSCL.txt ${PNUM}"
+
+
+### FLUIDANIMATE
+   
+   benchNam[18]="TM-fluidanimate"
+   benchSht[18]="TM-fa"
+   benchCmd[18]="${BENCHDIR}fluidanimate.mips.tm ${PNUM} 5 ${BENCHDIR}/in_35kMips.fluid ${OUTDIR}out/outputFAT.fluid"
+
+   benchNam[68]="LK-fluidanimate"
+   benchSht[68]="LK-fa"
+   benchCmd[68]="${BENCHDIR}fluidanimate.mips ${PNUM} 5 ${BENCHDIR}/in_35kMips.fluid ${OUTDIR}out/outputFAL.fluid"
+
+
+	for i in `seq 1 ${BENCHMARKS}`
+	do
+    if [ "${benchNam[i]}" != "" ]
+    then
+		  OUTNAME="${benchNam[i]}-${PNUM}"
+      TMPOUT="$$.${benchNam[i]}.${PNUM}"
+
+		  echo '#!/bin/bash' > $TMPOUT
+		  echo "#PBS -N ${SIM}-${benchSht[i]}-${PNUM}-$$" >> $TMPOUT
+		  echo "#PBS -o ${OUTDIR}out/${benchNam[i]}-${PNUM}.out" >> $TMPOUT
+		  echo "#PBS -e ${OUTDIR}err/${benchNam[i]}-${PNUM}.err" >> $TMPOUT
+		  echo "#PBS -M ${EMAIL}" >> $TMPOUT
+		  echo "#PBS -l pmem=${MEM}" >> $TMPOUT
+		  echo "#PBS -l nodes=1:ppn=1" >> $TMPOUT
+		  echo "#PBS -l walltime=${WALLTIME}" >> $TMPOUT
+      		  echo "#PBS -l file=${OUTSIZE}" >> $TMPOUT
+		  echo "" >> $TMPOUT
+
+      for e in `seq 1 $MAXOPTIONS`
+      do
+        if [ "${globalTransVar[e]}" != "" ]
+        then
+          echo "export ${globalTransVar[e]}" >> $TMPOUT
+        fi
+      done
+
+      for e in `seq 1 $MAXOPTIONS`
+      do
+        if [ "${localTransVar[e]}" != "" ]
+        then
+          echo "export ${localTransVar[e]}" >> $TMPOUT
+        fi
+      done
+
+      for e in `seq 1 $MAXOPTIONS`
+      do
+        if [ "${sescVar[e]}" != "" ]
+        then
+          echo "export ${sescVar[e]}" >> $TMPOUT
+        fi
+      done
+
+      echo "" >> $TMPOUT
+		  echo "cd ${SIMDIR}" >> $TMPOUT
+		  echo "./${SIM} -c${CONFSDIR}${CONFSNAM} -k${STACKSIZE} -d${OUTDIR}results/${OUTNAME} ${benchCmd[i]}" >> $TMPOUT
+
+       qsub $TMPOUT
+       rm $TMPOUT
+    fi
+	done
+done
